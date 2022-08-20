@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - '**'
+    tags-ignore:
+    - '**'
+
+jobs:
+  lint:
+    name: ⬣ Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: 📥  Install dependencies
+        run: npm ci
+
+      - name: 🔬 Lint
+        run: npm run lint
+
+  build:
+    name: ⚡ Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: 📥  Install dependencies
+        run: npm ci
+
+      - name: Run build
+        run: npm run build --if-present
+
+      - name: ⚡ Run tests
+        run: npm run test
+  
+  deploy:
+    name: 🚀 Deploy to Heroku
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [lint, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy to heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "youtube-reaction-server"
+          heroku_email: "arraworld@gmail.com"
