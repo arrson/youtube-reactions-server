@@ -6,8 +6,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 const initializeSwagger = (app: INestApplication) => {
   const config = new DocumentBuilder()
-    .setTitle('Median')
-    .setDescription('The Median API description')
+    .setTitle('Youtube reactions')
     .setVersion('0.1')
     .build();
 
@@ -23,6 +22,6 @@ async function bootstrap() {
 
   initializeSwagger(app);
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

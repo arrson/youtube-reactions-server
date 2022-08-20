@@ -62,7 +62,10 @@
       "json",
       "ts"
     ],
-    "moduleDirectories": [ "node_modules", "<rootDir>" ],
+    "moduleDirectories": [
+      "node_modules",
+      "<rootDir>"
+    ],
     "rootDir": "./",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {

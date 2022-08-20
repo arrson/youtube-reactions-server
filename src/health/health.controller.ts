@@ -8,7 +8,7 @@ export class HealthController {
 
   @Get()
   @ApiOkResponse({ schema: { type: 'boolean' } })
-  getHealth(): boolean {
+  getHealth(): string {
     return this.appService.getHealth();
   }
 }
