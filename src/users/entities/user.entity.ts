@@ -7,4 +7,10 @@ export class UserEntity implements User {
 
   @ApiProperty()
   name!: string;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
 }

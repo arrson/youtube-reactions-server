@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
   push:
     branches:
-    - '**'
+      - '**'
     tags-ignore:
-    - '**'
+      - '**'
 
 jobs:
   lint:
@@ -33,6 +33,21 @@ jobs:
   build:
     name: ⚡ Run tests
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/app
     steps:
       - name: 🛑 Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.9.1
@@ -51,9 +66,15 @@ jobs:
       - name: Run build
         run: npm run build --if-present
 
-      - name: ⚡ Run tests
-        run: npm run test
-  
+      # - name: ⚡ Run unit tests
+      #   run: npm run test
+
+      - name: Push Db
+        run: npm run db:push
+
+      - name: ⚡ Run integration tests
+        run: npm run test:e2e
+
   deploy:
     name: 🚀 Deploy to Heroku
     if: ${{ github.ref == 'refs/heads/main' }}
@@ -70,8 +91,8 @@ jobs:
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "youtube-reaction-server"
-          heroku_email: "arraworld@gmail.com"
-          healthcheck: "https://youtube-reaction-server.herokuapp.com/health"
-          checkstring: "ok"
+          heroku_app_name: 'youtube-reaction-server'
+          heroku_email: 'arraworld@gmail.com'
+          healthcheck: 'https://youtube-reaction-server.herokuapp.com/health'
+          checkstring: 'ok'
           rollbackonhealthcheckfailed: true
