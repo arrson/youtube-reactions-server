@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,7 +10,8 @@ datasource db {
 model User {
   id          String       @id
   name        String?
-  videos      Video[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now())
 }
 
 model Video {
@@ -22,17 +20,19 @@ model Video {
   thumbnail     String
   publishedAt   DateTime 
   reactions     Reaction[]  @relation("Reactions")
-  reaction_to   Reaction?   @relation("ReactionTo")
-  creator_id    String
-  creator       User        @relation(fields: [creator_id], references: [id])
+  reactionTo    Reaction?   @relation("ReactionTo")
+  channelId     String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @default(now())
 }
 
 // 1-to-many, a reaction is only to a single video
 model Reaction {
-  reaction_id     String     @id @unique
-  video_id        String
-  reaction        Video      @relation("ReactionTo", fields: [reaction_id], references: [id])
-  reactionTo      Video      @relation("Reactions", fields: [video_id], references: [id])
+  reactionId      String     @id @unique
+  videoId         String
+  reaction        Video      @relation("ReactionTo", fields: [reactionId], references: [id])
+  reactionTo      Video      @relation("Reactions", fields: [videoId], references: [id])
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @default(now())
+  reportCount     Int        @default(0)
 }

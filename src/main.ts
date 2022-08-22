@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { INestApplication } from '@nestjs/common';
+import { Logger, INestApplication } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
+import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 const initializeSwagger = (app: INestApplication) => {
@@ -22,6 +23,10 @@ async function bootstrap() {
 
   initializeSwagger(app);
 
-  await app.listen(process.env.PORT || 3000);
+  const configService = app.get(ConfigService);
+  const port = configService.get('PORT') || 3000;
+
+  await app.listen(port);
+  Logger.log(`Server started on port: ${port}.`);
 }
 bootstrap();
