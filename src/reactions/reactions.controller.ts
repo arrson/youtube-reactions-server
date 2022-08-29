@@ -11,7 +11,7 @@ import { ReactionsService } from './reactions.service';
 import { CreateReactionDto } from './dto/create-reaction.dto';
 
 import { ReactionEntity } from './entities/reaction.entity';
-import { VideoEntity } from './entities/video.entity';
+import { VideoEntity } from '../videos/entities/video.entity';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller()

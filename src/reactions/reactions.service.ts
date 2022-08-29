@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { keyBy } from 'lodash';
 import { CreateReactionDto } from './dto/create-reaction.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { keyBy } from 'lodash';
-import { getVideos } from './youtube';
+import { VideosService } from '../videos/videos.service';
 
 @Injectable()
 export class ReactionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private videoService: VideosService,
+  ) {}
 
   async create(createReactionDto: CreateReactionDto) {
     const existingReaction = await this.prisma.reaction.findUnique({
@@ -16,10 +19,9 @@ export class ReactionsService {
       throw new Error('reaction already exists');
     }
 
-    // resolve video ids with youtube
-    const videos = await getVideos({
-      id: [createReactionDto.videoId, createReactionDto.reactionId].join(','),
-    });
+    const videos = await this.videoService.getVideosInfo(
+      [createReactionDto.videoId, createReactionDto.reactionId].join(','),
+    );
     const videoMap = keyBy(videos, 'id');
 
     if (!videoMap[createReactionDto.videoId]) {
