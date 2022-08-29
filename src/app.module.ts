@@ -7,6 +7,12 @@ import { ReactionsModule } from './reactions/reactions.module';
 import { VideosModule } from './videos/videos.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), HealthModule, UsersModule, ReactionsModule, VideosModule],
+  imports: [
+    ConfigModule.forRoot(),
+    HealthModule,
+    UsersModule,
+    ReactionsModule,
+    VideosModule,
+  ],
 })
 export class AppModule {}

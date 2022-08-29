@@ -27,20 +27,22 @@ describe('Videos (e2e)', () => {
       const { app } = getApp();
       const { status, body } = await request(app.getHttpServer())
         .get('/videos')
-        .query({ id: 'videoId1' });
+        .query({ id: video.id });
 
       expect(status).toBe(200);
       expect(body).toStrictEqual(expect.arrayContaining([videoShape]));
     });
 
     it('returns videos from cache', async () => {
+      const newVideoId = 'videoId2';
+
       const { app } = getApp();
       const { body } = await request(app.getHttpServer())
         .get('/videos')
-        .query({ id: 'videoId2,videoId1' });
+        .query({ id: `${newVideoId},${video.id}` });
 
-      const videoFromCache = body.find((d: Video) => d.id === 'videoId1');
-      const videoFromYoutube = body.find((d: Video) => d.id === 'videoId2');
+      const videoFromCache = body.find((d: Video) => d.id === video.id);
+      const videoFromYoutube = body.find((d: Video) => d.id === newVideoId);
 
       expect(videoFromCache.createdAt < videoFromYoutube.createdAt).toEqual(
         true,
