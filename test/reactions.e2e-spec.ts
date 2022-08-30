@@ -86,4 +86,29 @@ describe('Reactions (e2e)', () => {
       expect(body.reportCount).toStrictEqual(reaction.reportCount + 1);
     });
   });
+
+  describe('DELETE /reactions/:id', () => {
+    it('delete a reaction', async () => {
+      const { app } = getApp();
+
+      const beforeReactions = await request(app.getHttpServer()).get(
+        '/reactions',
+      );
+      const beforeCount = beforeReactions.body.length;
+
+      const { status, body } = await request(app.getHttpServer()).delete(
+        `/reactions/${reaction.reactionId}`,
+      );
+
+      expect(status).toBe(200);
+      expect(body).toStrictEqual(reactionShape);
+
+      const afterReactions = await request(app.getHttpServer()).get(
+        '/reactions',
+      );
+      const afterCount = afterReactions.body.length;
+
+      expect(beforeCount - afterCount).toBe(1);
+    });
+  });
 });
