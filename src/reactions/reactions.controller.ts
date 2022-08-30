@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Delete,
   Body,
   Param,
   HttpException,
@@ -49,5 +50,11 @@ export class ReactionsController {
   @ApiOkResponse({ type: ReactionEntity })
   report(@Param('id') id: string) {
     return this.reactionsService.report(id);
+  }
+
+  @Delete('reactions/:id')
+  @ApiOkResponse({ type: ReactionEntity })
+  remove(@Param('id') id: string) {
+    return this.reactionsService.remove(id);
   }
 }

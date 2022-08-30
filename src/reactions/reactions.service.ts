@@ -90,4 +90,8 @@ export class ReactionsService {
       data: { reportCount: { increment: 1 } },
     });
   }
+
+  remove(reactionId: string) {
+    return this.prisma.reaction.delete({ where: { reactionId } });
+  }
 }
