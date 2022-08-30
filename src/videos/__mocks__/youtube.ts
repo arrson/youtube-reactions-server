@@ -5,4 +5,5 @@ export const getVideos = async ({ id }) =>
     thumbnail: 'mock',
     publishedAt: new Date().toISOString(),
     channelId: 'mockChannelId',
+    channelTitle: 'mockChannelTitle',
   }));

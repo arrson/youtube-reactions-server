@@ -15,6 +15,9 @@ export class VideoEntity implements Video {
   channelId: string;
 
   @ApiProperty()
+  channelTitle: string;
+
+  @ApiProperty()
   publishedAt: Date;
 
   @ApiProperty()
