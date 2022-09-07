@@ -66,22 +66,41 @@ export class ReactionsService {
       throw Error('video must be specified');
     }
 
-    const video = await this.prisma.video.findUnique({
-      where: { id },
-      include: {
-        reactions: true,
-      },
-    });
+    const reactionTo = (
+      await this.prisma.reaction.findMany({
+        where: { reactionId: id },
+        include: { reactionTo: true },
+      })
+    ).map((d) => d.reactionTo);
 
-    if (!video) {
-      return [];
+    const reactions = (
+      await this.prisma.reaction.findMany({
+        where: { videoId: id },
+        include: { reaction: true },
+      })
+    ).map((d) => d.reaction);
+
+    // if a video is a reaction, get other reactions
+    let otherReactions = [];
+    if (reactionTo.length) {
+      otherReactions = (
+        await this.prisma.reaction.findMany({
+          where: {
+            videoId: { in: reactionTo.map((d) => d.id) },
+            NOT: { reactionId: id },
+          },
+          include: { reaction: true },
+        })
+      ).map((d) => d.reaction);
     }
 
-    return this.prisma.video.findMany({
-      where: {
-        id: { in: video.reactions.map((d) => d.reactionId) },
-      },
-    });
+    // return a nested object since these lists
+    // should be shown and paginated individually
+    return {
+      reactionTo,
+      reactions,
+      otherReactions,
+    };
   }
 
   report(reactionId: string) {

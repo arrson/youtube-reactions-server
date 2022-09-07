@@ -47,7 +47,6 @@ describe('Reactions (e2e)', () => {
         '/reactions',
       );
       const afterCount = afterReactions.body.length;
-
       expect(afterCount - beforeCount).toBe(1);
     });
   });
@@ -72,7 +71,27 @@ describe('Reactions (e2e)', () => {
       );
 
       expect(status).toBe(200);
-      expect(body).toStrictEqual(expect.arrayContaining([videoShape]));
+      expect(body.reactions).toStrictEqual(
+        expect.arrayContaining([videoShape]),
+      );
+      expect(body.reactionTo.length).toEqual(0);
+      expect(body.otherReactions.length).toEqual(0);
+    });
+
+    it('get a origin videos', async () => {
+      const { app } = getApp();
+      const { status, body } = await request(app.getHttpServer()).get(
+        `/videos/${reaction.reactionId}/videos`,
+      );
+
+      expect(status).toBe(200);
+      expect(body.reactions.length).toEqual(0);
+      expect(body.reactionTo).toStrictEqual(
+        expect.arrayContaining([videoShape]),
+      );
+      expect(body.otherReactions).toStrictEqual(
+        expect.arrayContaining([videoShape]),
+      );
     });
   });
 
