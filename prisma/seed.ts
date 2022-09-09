@@ -6,25 +6,16 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  const user1 = await prisma.user.upsert({
-    where: { id: 'user1' },
+  await prisma.user.upsert({
+    where: { email: 'arraworld@gmail.com' },
     update: {},
     create: {
-      id: 'user1',
-      name: 'Smith',
+      id: '00000000admin00000000',
+      displayName: 'Stephen',
+      email: 'arraworld@gmail.com',
+      isAdmin: true,
     },
   });
-
-  const user2 = await prisma.user.upsert({
-    where: { id: 'user2' },
-    update: {},
-    create: {
-      id: 'user2',
-      name: 'John',
-    },
-  });
-
-  console.log({ user1, user2 });
 }
 
 // execute the main function

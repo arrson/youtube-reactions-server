@@ -1,93 +1,99 @@
 import * as request from 'supertest';
 import { User } from '@prisma/client';
-import { useApp } from './helpers';
+import { useApp, getUserToken } from './helpers';
 
 describe('Users (e2e)', () => {
   let user: User;
-  const getApp = useApp();
-  const userShape = expect.objectContaining({
-    id: expect.any(String),
-    name: expect.any(String),
-  });
+  let admin: User;
+  let userToken: string;
+  let adminToken: string;
 
-  beforeAll(async () => {
-    const { prisma } = getApp();
+  const beforeAll = async ({ prisma }) => {
     user = await prisma.user.create({
       data: {
-        id: 'user_test_1',
-        name: 'John',
+        displayName: 'John',
+        email: 'john@example.com',
       },
     });
+    admin = await prisma.user.create({
+      data: {
+        displayName: 'Admin',
+        email: 'admin@example.com',
+        isAdmin: true,
+      },
+    });
+    userToken = getUserToken(user);
+    adminToken = getUserToken(admin);
+  };
+
+  const getApp = useApp({ beforeAll });
+  const userShape = expect.objectContaining({
+    id: expect.any(String),
+    displayName: expect.any(String),
   });
 
+  // admin only
   describe('GET /users', () => {
-    it('returns a list of users', async () => {
+    it('returns a list of users as admin', async () => {
       const { app } = getApp();
-      const { status, body } = await request(app.getHttpServer()).get('/users');
+      const { status, body } = await request(app.getHttpServer())
+        .get('/users')
+        .set('Authorization', 'Bearer ' + adminToken);
 
       expect(status).toBe(200);
       expect(body).toStrictEqual(expect.arrayContaining([userShape]));
     });
-  });
 
-  describe('GET /users/:id', () => {
-    it('returns a user', async () => {
-      const { app } = getApp();
-      const { status, body } = await request(app.getHttpServer()).get(
-        `/users/${user.id}`,
-      );
-
-      expect(status).toBe(200);
-      expect(body).toStrictEqual(userShape);
-    });
-  });
-
-  describe('POST /users', () => {
-    it('creates a user', async () => {
-      const { app, prisma } = getApp();
-      const beforeCount = await prisma.user.count();
-      const { status, body } = await request(app.getHttpServer())
-        .post('/users')
-        .send({
-          id: 'user_test_2',
-          name: 'John2',
-        });
-
-      const afterCount = await prisma.user.count();
-
-      expect(status).toBe(201);
-      expect(body).toStrictEqual(userShape);
-      expect(afterCount - beforeCount).toBe(1);
-    });
-  });
-
-  describe('PATCH /users/:id', () => {
-    it('updates a user', async () => {
+    it('returns a list of users', async () => {
       const { app } = getApp();
       const { status, body } = await request(app.getHttpServer())
-        .patch(`/users/${user.id}`)
-        .send({
-          name: 'ModifiedName',
-        });
+        .get('/users')
+        .set('Authorization', 'Bearer ' + userToken);
 
-      expect(status).toBe(200);
-      expect(body).toStrictEqual(userShape);
+      expect(status).toBe(401);
+      expect(body.message).toEqual('Unauthorized');
     });
   });
 
-  describe('DELETE /users/:id', () => {
-    it('deletes a user', async () => {
-      const { app } = getApp();
-      const { status, body } = await request(app.getHttpServer()).delete(
-        `/users/${user.id}`,
-      );
+  // describe('GET /users/:id', () => {
+  //   it('returns a user', async () => {
+  //     const { app } = getApp();
+  //     const { status, body } = await request(app.getHttpServer()).get(
+  //       `/users/${user.id}`,
+  //     );
 
-      expect(status).toBe(200);
-      expect(body).toStrictEqual(userShape);
+  //     expect(status).toBe(200);
+  //     expect(body).toStrictEqual(userShape);
+  //   });
+  // });
 
-      const res = await request(app.getHttpServer()).get(`/users/${user.id}`);
-      expect(res.status).toBe(200);
-      expect(res.body).toStrictEqual({});
-    });
-  });
+  // describe('PATCH /users/:id', () => {
+  //   it('updates a user', async () => {
+  //     const { app } = getApp();
+  //     const { status, body } = await request(app.getHttpServer())
+  //       .patch(`/users/${user.id}`)
+  //       .send({
+  //         name: 'ModifiedName',
+  //       });
+
+  //     expect(status).toBe(200);
+  //     expect(body).toStrictEqual(userShape);
+  //   });
+  // });
+
+  // describe('DELETE /users/:id', () => {
+  //   it('deletes a user', async () => {
+  //     const { app } = getApp();
+  //     const { status, body } = await request(app.getHttpServer()).delete(
+  //       `/users/${user.id}`,
+  //     );
+
+  //     expect(status).toBe(200);
+  //     expect(body).toStrictEqual(userShape);
+
+  //     const res = await request(app.getHttpServer()).get(`/users/${user.id}`);
+  //     expect(res.status).toBe(200);
+  //     expect(res.body).toStrictEqual({});
+  //   });
+  // });
 });

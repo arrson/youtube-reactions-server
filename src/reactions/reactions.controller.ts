@@ -3,16 +3,19 @@ import {
   Get,
   Post,
   Delete,
+  Request,
   Body,
   Param,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ReactionsService } from './reactions.service';
 import { CreateReactionDto } from './dto/create-reaction.dto';
 
 import { ReactionEntity } from './entities/reaction.entity';
 import { VideoEntity } from '../videos/entities/video.entity';
+import { AuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller()
@@ -20,11 +23,15 @@ import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 export class ReactionsController {
   constructor(private readonly reactionsService: ReactionsService) {}
 
+  @UseGuards(AuthGuard)
   @Post('reactions')
   @ApiCreatedResponse({ type: ReactionEntity })
-  async create(@Body() createReactionDto: CreateReactionDto) {
+  async create(@Request() req, @Body() createReactionDto: CreateReactionDto) {
     try {
-      const res = await this.reactionsService.create(createReactionDto);
+      const res = await this.reactionsService.create(
+        createReactionDto,
+        req.user,
+      );
       return res;
     } catch (e) {
       throw new HttpException(
@@ -46,12 +53,15 @@ export class ReactionsController {
     return this.reactionsService.getReactionsForVideo(id);
   }
 
+  @UseGuards(AuthGuard)
   @Post('reactions/:id/report')
   @ApiOkResponse({ type: ReactionEntity })
   report(@Param('id') id: string) {
     return this.reactionsService.report(id);
   }
 
+  // todo: should check whether user is authorized to delete
+  @UseGuards(AuthGuard)
   @Delete('reactions/:id')
   @ApiOkResponse({ type: ReactionEntity })
   remove(@Param('id') id: string) {

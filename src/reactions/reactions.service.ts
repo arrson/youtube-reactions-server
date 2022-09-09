@@ -3,6 +3,7 @@ import { keyBy } from 'lodash';
 import { CreateReactionDto } from './dto/create-reaction.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { VideosService } from '../videos/videos.service';
+import { UserEntity } from '../users/entities/user.entity';
 
 @Injectable()
 export class ReactionsService {
@@ -11,7 +12,7 @@ export class ReactionsService {
     private videoService: VideosService,
   ) {}
 
-  async create(createReactionDto: CreateReactionDto) {
+  async create(createReactionDto: CreateReactionDto, user: UserEntity) {
     const existingReaction = await this.prisma.reaction.findUnique({
       where: { reactionId: createReactionDto.reactionId },
     });
@@ -48,6 +49,7 @@ export class ReactionsService {
       data: {
         reactionId: reactionVideo.id,
         videoId: originalVideo.id,
+        createdById: user.id,
       },
     });
   }

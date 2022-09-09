@@ -6,20 +6,19 @@ jest.mock('../src/videos/youtube');
 
 describe('Videos (e2e)', () => {
   let video: Video;
-  const getApp = useApp();
+  const getApp = useApp({
+    beforeAll: async ({ app }) => {
+      const res = await request(app.getHttpServer())
+        .get('/videos')
+        .query({ id: 'videoId1' });
+      video = res.body[0];
+    },
+  });
   const videoShape = expect.objectContaining({
     id: expect.any(String),
     title: expect.any(String),
     thumbnail: expect.any(String),
     channelId: expect.any(String),
-  });
-
-  beforeAll(async () => {
-    const { app } = getApp();
-    const res = await request(app.getHttpServer())
-      .get('/videos')
-      .query({ id: 'videoId1' });
-    video = res.body[0];
   });
 
   describe('GET /videos', () => {
