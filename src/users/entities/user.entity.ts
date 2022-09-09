@@ -6,11 +6,17 @@ export class UserEntity implements User {
   id!: string;
 
   @ApiProperty()
-  name!: string;
+  displayName!: string;
+
+  @ApiProperty()
+  email: string;
 
   @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty()
+  isAdmin: boolean;
 }

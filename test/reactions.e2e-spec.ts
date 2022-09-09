@@ -1,12 +1,33 @@
 import * as request from 'supertest';
 import { Reaction } from '@prisma/client';
-import { useApp } from './helpers';
+import { useApp, getUserToken } from './helpers';
 
 jest.mock('../src/videos/youtube');
 
 describe('Reactions (e2e)', () => {
   let reaction: Reaction;
-  const getApp = useApp();
+  let userToken: string;
+
+  const beforeAll = async ({ app, prisma }) => {
+    const user = await prisma.user.create({
+      data: {
+        displayName: 'John Reactions',
+        email: 'john_reactions@example.com',
+      },
+    });
+    userToken = getUserToken(user);
+
+    const res = await request(app.getHttpServer())
+      .post('/reactions')
+      .set('Authorization', 'Bearer ' + userToken)
+      .send({ reactionId: 'video2', videoId: 'video1' });
+    reaction = res.body;
+  };
+
+  const getApp = useApp({
+    beforeAll,
+  });
+
   const reactionShape = expect.objectContaining({
     reactionId: expect.any(String),
     videoId: expect.any(String),
@@ -17,15 +38,6 @@ describe('Reactions (e2e)', () => {
     title: expect.any(String),
     thumbnail: expect.any(String),
     channelId: expect.any(String),
-  });
-
-  beforeAll(async () => {
-    const { app } = getApp();
-    const res = await request(app.getHttpServer()).post('/reactions').send({
-      reactionId: 'video2',
-      videoId: 'video1',
-    });
-    reaction = res.body;
   });
 
   describe('POST /reactions', () => {
@@ -39,6 +51,7 @@ describe('Reactions (e2e)', () => {
 
       const { status, body } = await request(app.getHttpServer())
         .post('/reactions')
+        .set('Authorization', 'Bearer ' + userToken)
         .send({ reactionId: 'video3', videoId: 'video1' });
       expect(status).toBe(201);
       expect(body).toStrictEqual(reactionShape);
@@ -98,10 +111,9 @@ describe('Reactions (e2e)', () => {
   describe('POST /reactions/:id/report', () => {
     it('report a reaction', async () => {
       const { app } = getApp();
-      const { body } = await request(app.getHttpServer()).post(
-        `/reactions/${reaction.reactionId}/report`,
-      );
-
+      const { body } = await request(app.getHttpServer())
+        .post(`/reactions/${reaction.reactionId}/report`)
+        .set('Authorization', 'Bearer ' + userToken);
       expect(body.reportCount).toStrictEqual(reaction.reportCount + 1);
     });
   });
@@ -115,10 +127,9 @@ describe('Reactions (e2e)', () => {
       );
       const beforeCount = beforeReactions.body.length;
 
-      const { status, body } = await request(app.getHttpServer()).delete(
-        `/reactions/${reaction.reactionId}`,
-      );
-
+      const { status, body } = await request(app.getHttpServer())
+        .delete(`/reactions/${reaction.reactionId}`)
+        .set('Authorization', 'Bearer ' + userToken);
       expect(status).toBe(200);
       expect(body).toStrictEqual(reactionShape);
 

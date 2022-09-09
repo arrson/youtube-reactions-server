@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>App</title>
+    <script>
+      window.onload = () => {
+        window.opener.postMessage({ message: "token", token: "{{ token }}" }, "*");
+      }
+    </script>
+  </head>
+  <body>
+    Success
+  </body>
+</html>

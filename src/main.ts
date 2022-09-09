@@ -4,6 +4,9 @@ import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as passport from 'passport';
+import { resolve } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 const initializeSwagger = (app: INestApplication) => {
   const config = new DocumentBuilder()
@@ -16,7 +19,7 @@ const initializeSwagger = (app: INestApplication) => {
 };
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors();
 
   const prismaService = app.get(PrismaService);
@@ -25,7 +28,13 @@ async function bootstrap() {
   initializeSwagger(app);
 
   const configService = app.get(ConfigService);
-  const port = configService.get('PORT') || 3000;
+  const port = configService.get<number>('port');
+
+  app.use(passport.initialize());
+
+  app.useStaticAssets(resolve('./src/public'));
+  app.setBaseViewsDir(resolve('./src/views'));
+  app.setViewEngine('hbs');
 
   await app.listen(port);
   Logger.log(`Server started on port: ${port}.`);

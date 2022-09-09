@@ -1,10 +1,5 @@
 import { google, youtube_v3 } from 'googleapis';
 
-const youtube: youtube_v3.Youtube = google.youtube({
-  version: 'v3',
-  auth: process.env.YOUTUBE_API_KEY,
-});
-
 const format = (video: youtube_v3.Schema$Video) => ({
   id: video.id,
   title: video.snippet.title,
@@ -14,12 +9,19 @@ const format = (video: youtube_v3.Schema$Video) => ({
   channelTitle: video.snippet.channelTitle,
 });
 
-export const getVideos = async ({ id }) => {
-  const listParams: youtube_v3.Params$Resource$Videos$List = {
-    part: ['id,snippet,contentDetails'],
-    id: [id],
+export default (apiKey: string) => {
+  const youtube: youtube_v3.Youtube = google.youtube({
+    version: 'v3',
+    auth: apiKey,
+  });
+
+  return async ({ id }) => {
+    const listParams: youtube_v3.Params$Resource$Videos$List = {
+      part: ['id,snippet,contentDetails'],
+      id: [id],
+    };
+    const res = await youtube.videos.list(listParams);
+    const listResults: youtube_v3.Schema$VideoListResponse = res.data;
+    return listResults.items.map(format);
   };
-  const res = await youtube.videos.list(listParams);
-  const listResults: youtube_v3.Schema$VideoListResponse = res.data;
-  return listResults.items.map(format);
 };

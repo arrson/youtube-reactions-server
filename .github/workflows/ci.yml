@@ -48,6 +48,8 @@ jobs:
           - 5432:5432
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/app
+      JWT_SECRET: +MbQeShVmYq3t6w9z$C&F)J@NcRfUjWn
+      JWT_EXPIRES_IN: '10d'
     steps:
       - name: 🛑 Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.9.1

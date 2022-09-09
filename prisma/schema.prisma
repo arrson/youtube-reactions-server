@@ -8,23 +8,27 @@ datasource db {
 }
 
 model User {
-  id          String       @id
-  name        String?
+  id          String     @id @default(cuid())
+  displayName String?
+  email       String     @unique
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @default(now())
+  reports     Report[]
+  reactions   Reaction[]
+  isAdmin     Boolean    @default(false)
 }
 
 model Video {
-  id            String       @id
+  id            String      @id
   title         String
   thumbnail     String
   publishedAt   DateTime 
   reactions     Reaction[]  @relation("Reactions")
   reactionTo    Reaction?   @relation("ReactionTo")
   channelId     String
-  channelTitle  String     @default("")
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @default(now())
+  channelTitle  String      @default("")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @default(now())
 }
 
 // 1-to-many, a reaction is only to a single video
@@ -33,7 +37,20 @@ model Reaction {
   videoId         String
   reaction        Video      @relation("ReactionTo", fields: [reactionId], references: [id])
   reactionTo      Video      @relation("Reactions", fields: [videoId], references: [id])
+  reportCount     Int        @default(0)
+  reports         Report[]
+  createdById     String
+  createdBy       User       @relation(fields: [createdById], references: [id])
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @default(now())
-  reportCount     Int        @default(0)
+}
+
+model Report {
+  id          String      @id @default(cuid())
+  createdById String
+  createdBy   User        @relation(fields: [createdById], references: [id])
+  reactionId  String
+  reaction    Reaction    @relation(fields: [reactionId], references: [reactionId])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now())
 }

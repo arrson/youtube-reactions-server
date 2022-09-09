@@ -16,4 +16,6 @@ export class ReactionEntity implements Reaction {
 
   @ApiProperty()
   reportCount: number;
+
+  createdById: string;
 }
