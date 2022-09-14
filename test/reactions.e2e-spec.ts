@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Reaction } from '@prisma/client';
-import { useApp, getUserToken } from './helpers';
+import { useApp } from './helpers';
 
 jest.mock('../src/videos/youtube');
 
@@ -8,7 +8,7 @@ describe('Reactions (e2e)', () => {
   let reaction: Reaction;
   let userToken: string;
 
-  const beforeAll = async ({ app, prisma }) => {
+  const beforeAll = async ({ app, prisma, getUserToken }) => {
     const user = await prisma.user.create({
       data: {
         displayName: 'John Reactions',

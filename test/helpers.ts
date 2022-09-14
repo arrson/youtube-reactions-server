@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { resolve } from 'path';
 import * as passport from 'passport';
@@ -9,6 +10,7 @@ import { sign } from 'jsonwebtoken';
 interface useAppArguements {
   app: NestExpressApplication;
   prisma: PrismaService;
+  getUserToken: (user: string) => string;
 }
 interface useAppInterface {
   beforeAll?: (a?: useAppArguements) => Promise<void>;
@@ -21,6 +23,14 @@ export const useApp = ({
 }: useAppInterface = {}) => {
   let app: NestExpressApplication;
   let prisma: PrismaService;
+  let config: ConfigService;
+
+  const getOutput = () => ({
+    app,
+    prisma,
+    getUserToken: (user) =>
+      sign({ id: user.id }, config.get<string>('jwt.secret')),
+  });
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -35,10 +45,11 @@ export const useApp = ({
     app.setViewEngine('hbs');
 
     prisma = app.get<PrismaService>(PrismaService);
+    config = app.get<ConfigService>(ConfigService);
 
     await app.init();
     if (_beforeAll) {
-      await _beforeAll({ app, prisma });
+      await _beforeAll(getOutput());
     }
   });
 
@@ -48,7 +59,7 @@ export const useApp = ({
     await prisma.$disconnect();
     await app.close();
     if (_afterAll) {
-      await _afterAll({ app, prisma });
+      await _afterAll(getOutput());
     }
   });
 
@@ -56,11 +67,5 @@ export const useApp = ({
     // TODO: use transactions and transaction rollback once prisma supports it
   });
 
-  return () => ({
-    app,
-    prisma,
-  });
+  return getOutput;
 };
-
-export const getUserToken = (user) =>
-  sign({ id: user.id }, process.env.JWT_SECRET);

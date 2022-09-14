@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { User } from '@prisma/client';
-import { useApp, getUserToken } from './helpers';
+import { useApp } from './helpers';
 
 describe('Users (e2e)', () => {
   let user: User;
@@ -8,7 +8,7 @@ describe('Users (e2e)', () => {
   let userToken: string;
   let adminToken: string;
 
-  const beforeAll = async ({ prisma }) => {
+  const beforeAll = async ({ prisma, getUserToken }) => {
     user = await prisma.user.create({
       data: {
         displayName: 'John',
