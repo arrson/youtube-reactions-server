@@ -76,7 +76,7 @@ jobs:
         run: npm run test:e2e
 
   deploy:
-    name: 🚀 Deploy to Heroku
+    name: 🚀 Deploy to Fly
     if: ${{ github.ref == 'refs/heads/main' }}
     needs: [lint, build]
     runs-on: ubuntu-latest
@@ -87,12 +87,8 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v2
 
-      - name: Deploy to heroku
-        uses: akhileshns/heroku-deploy@v3.12.12
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: 'youtube-reaction-server'
-          heroku_email: 'arraworld@gmail.com'
-          healthcheck: 'https://youtube-reaction-server.herokuapp.com/health'
-          checkstring: 'ok'
-          rollbackonhealthcheckfailed: true
+      - name: Deploy to fly
+        uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
