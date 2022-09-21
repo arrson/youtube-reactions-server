@@ -11,10 +11,16 @@ const formatVideo = (video: youtube_v3.Schema$Video) => ({
   channelTitle: video.snippet.channelTitle,
 });
 
-const formatChannel = (channel: youtube_v3.Schema$SearchResult) => ({
-  channelId: channel.snippet.channelId,
-  channelName: channel.snippet.channelTitle,
-  imgUrl: channel.snippet.thumbnails.default.url,
+const formatChannelSearch = (channel: youtube_v3.Schema$SearchResult) => ({
+  id: channel.snippet.channelId,
+  name: channel.snippet.channelTitle,
+  img: channel.snippet.thumbnails.default.url,
+});
+
+const formatChannel = (channel: youtube_v3.Schema$Channel) => ({
+  id: channel.id,
+  name: channel.snippet.title,
+  img: channel.snippet.thumbnails.default.url,
 });
 
 @Injectable()
@@ -34,15 +40,26 @@ export class YoutubeService {
       q: name,
     });
 
+    return res.data.items.map(formatChannelSearch);
+  }
+
+  async getChannelInfo(ids: string) {
+    const res = await this.youtube.channels.list({
+      part: ['snippet'],
+      id: [ids],
+    });
     return res.data.items.map(formatChannel);
   }
 
   async getVideosInfo(id: string) {
+    console.log('BEFORE LIST', id);
     const listParams: youtube_v3.Params$Resource$Videos$List = {
       part: ['id,snippet,contentDetails'],
       id: [id],
     };
+    console.log('GOOGLE', google);
     const res = await this.youtube.videos.list(listParams);
+    console.log('RESSS', res, id);
     const listResults: youtube_v3.Schema$VideoListResponse = res.data;
     return listResults.items.map(formatVideo);
   }

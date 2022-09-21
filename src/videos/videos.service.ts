@@ -2,7 +2,7 @@ import { difference } from 'lodash';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
-import { YoutubeService } from 'src/youtube/youtube.service';
+import { YoutubeService } from '../youtube/youtube.service';
 
 @Injectable()
 export class VideosService {
@@ -31,9 +31,11 @@ export class VideosService {
 
     // get any remaining ids from youtube api
     // and save to cached videos
+    console.log('BEFOREE');
     const newVideos = await this.youtubeService.getVideosInfo(
       remainingIds.join(','),
     );
+    console.log('NEW VIDEOOOOOOO', newVideos);
     await this.prisma.$transaction(
       newVideos.map((video) =>
         this.prisma.video.upsert({

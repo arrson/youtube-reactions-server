@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { YoutubeService } from 'src/youtube/youtube.service';
+import { YoutubeService } from '../youtube/youtube.service';
 
 @Injectable()
 export class SearchService {
@@ -7,5 +7,9 @@ export class SearchService {
 
   async searchByChannelName(name: string) {
     return this.youtubeService.searchByChannelName(name);
+  }
+
+  async getChannelInfo(id: string) {
+    return this.youtubeService.getChannelInfo(id);
   }
 }

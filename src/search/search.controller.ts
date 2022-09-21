@@ -12,7 +12,7 @@ export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 
   @Get()
-  getChannels(@Query('name') name: string) {
+  searchChannel(@Query('name') name: string) {
     if (!name) {
       throw new HttpException(
         { status: HttpStatus.BAD_REQUEST, error: '"name" is required.' },
@@ -20,5 +20,10 @@ export class SearchController {
       );
     }
     return this.searchService.searchByChannelName(name);
+  }
+
+  @Get('channel-info')
+  getChannelInfo(@Query('id') id: string) {
+    return this.searchService.getChannelInfo(id);
   }
 }

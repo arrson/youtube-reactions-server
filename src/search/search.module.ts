@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { YoutubeModule } from 'src/youtube/youtube.module';
+import { YoutubeModule } from '../youtube/youtube.module';
 import { SearchController } from './search.controller';
 import { SearchService } from './search.service';
 
