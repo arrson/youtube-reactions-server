@@ -31,11 +31,9 @@ export class VideosService {
 
     // get any remaining ids from youtube api
     // and save to cached videos
-    console.log('BEFOREE');
     const newVideos = await this.youtubeService.getVideosInfo(
       remainingIds.join(','),
     );
-    console.log('NEW VIDEOOOOOOO', newVideos);
     await this.prisma.$transaction(
       newVideos.map((video) =>
         this.prisma.video.upsert({

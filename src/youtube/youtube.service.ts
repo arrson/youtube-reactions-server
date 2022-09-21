@@ -52,14 +52,11 @@ export class YoutubeService {
   }
 
   async getVideosInfo(id: string) {
-    console.log('BEFORE LIST', id);
     const listParams: youtube_v3.Params$Resource$Videos$List = {
       part: ['id,snippet,contentDetails'],
       id: [id],
     };
-    console.log('GOOGLE', google);
     const res = await this.youtube.videos.list(listParams);
-    console.log('RESSS', res, id);
     const listResults: youtube_v3.Schema$VideoListResponse = res.data;
     return listResults.items.map(formatVideo);
   }
