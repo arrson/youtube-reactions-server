@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Jest Tests",
+      "name": "Debug E2E Jest Tests",
       "type": "node",
       "request": "launch",
       "osx": {
