@@ -23,7 +23,6 @@
           "./test/jest-e2e.json"
         ]
       },
-
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     }
