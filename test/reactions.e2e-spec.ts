@@ -2,8 +2,6 @@ import * as request from 'supertest';
 import { Reaction } from '@prisma/client';
 import { useApp } from './helpers';
 
-jest.mock('../src/videos/youtube');
-
 describe('Reactions (e2e)', () => {
   let reaction: Reaction;
   let userToken: string;

@@ -2,8 +2,6 @@ import * as request from 'supertest';
 import { useApp } from './helpers';
 import { Video } from '@prisma/client';
 
-jest.mock('../src/videos/youtube');
-
 describe('Videos (e2e)', () => {
   let video: Video;
   const getApp = useApp({

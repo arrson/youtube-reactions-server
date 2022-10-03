@@ -63,11 +63,12 @@ export class ReactionsService {
     });
   }
 
-  async getReactionsForVideo(id: string) {
+  async getReactionsForVideo(id: string, channelId?: string) {
     if (!id) {
       throw Error('video must be specified');
     }
 
+    let filter = {};
     const reactionTo = (
       await this.prisma.reaction.findMany({
         where: { reactionId: id },
@@ -75,9 +76,20 @@ export class ReactionsService {
       })
     ).map((d) => d.reactionTo);
 
+    if (channelId) {
+      const channelIds = channelId.split(',');
+      filter = {
+        reaction: {
+          channelId: {
+            in: channelIds,
+          },
+        },
+      };
+    }
+
     const reactions = (
       await this.prisma.reaction.findMany({
-        where: { videoId: id },
+        where: { videoId: id, ...filter },
         include: { reaction: true },
       })
     ).map((d) => d.reaction);
@@ -89,6 +101,7 @@ export class ReactionsService {
         await this.prisma.reaction.findMany({
           where: {
             videoId: { in: reactionTo.map((d) => d.id) },
+            ...filter,
             NOT: { reactionId: id },
           },
           include: { reaction: true },

@@ -9,6 +9,7 @@ import {
   HttpException,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ReactionsService } from './reactions.service';
 import { CreateReactionDto } from './dto/create-reaction.dto';
@@ -49,8 +50,11 @@ export class ReactionsController {
 
   @Get('videos/:id/videos')
   @ApiOkResponse({ type: VideoEntity, isArray: true })
-  getReactionsForVideo(@Param('id') id: string) {
-    return this.reactionsService.getReactionsForVideo(id);
+  getReactionsForVideo(
+    @Query('channelId') channelId: string,
+    @Param('id') id: string,
+  ) {
+    return this.reactionsService.getReactionsForVideo(id, channelId);
   }
 
   @UseGuards(AuthGuard)

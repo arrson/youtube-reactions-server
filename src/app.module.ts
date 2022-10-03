@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { ReactionsModule } from './reactions/reactions.module';
 import { VideosModule } from './videos/videos.module';
 import config from './config';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import config from './config';
     ReactionsModule,
     VideosModule,
     PassportModule,
+    SearchModule,
   ],
 })
 export class AppModule {}
